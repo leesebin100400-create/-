@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ post.title }}</title>
+    <script>
+        // 댓글 수정을 위해 인라인 폼을 보여주는 간단한 자바스크립트 함수
+        function showEditForm(commentId) {
+            var div = document.getElementById('edit-form-' + commentId);
+            if (div.style.display === 'none') {
+                div.style.display = 'block';
+            } else {
+                div.style.display = 'none';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>{{ post.title }}</h1>
+    <p><strong>작성자:</strong> {{ post.username }} | <strong>작성일:</strong> {{ post.created_at }}</p>
+    <hr>
+    
+    <div style="min-height: 200px; background-color: #f9f9f9; padding: 15px; border: 1px solid #ccc;">
+        {{ post.content | replace('\n', '<br>') | safe }}
+    </div>
+    
+    {% if file_info %}
+        <p>📁 <strong>첨부파일 다운로드:</strong> <a href="/download/{{ file_info.original_name }}">{{ file_info.original_name }}</a></p>
+    {% endif %}
+    <hr>
+
+    {% if session.get('user_id') == post.author_id %}
+        <a href="/post/{{ post.id }}/edit">[글 수정(파일 수정 포함)]</a> | 
+        <a href="/post/{{ post.id }}/delete" onclick="return confirm('정말 삭제하시겠습니까?');">[글 삭제]</a> | 
+    {% endif %}
+    <a href="/board/{{ post.board_id }}">[목록으로]</a>
+
+    <br><br>
+    <h3>💬 댓글 목록</h3>
+    <table border="1" width="600">
+        {% if not comments %}
+            <tr><td style="padding: 10px; text-align: center;">등록된 댓글이 없습니다.</td></tr>
+        {% else %}
+            {% for comment in comments %}
+                <tr>
+                    <td style="padding: 10px;">
+                        <strong>{{ comment.username }}</strong> ({{ comment.created_at }})<br>
+                        <span id="comment-text-{{ comment.id }}">{{ comment.content }}</span>
+                        
+                        {% if session.get('user_id') == comment.author_id %}
+                            <span style="float: right;">
+                                <a href="#" onclick="showEditForm({{ comment.id }}); return false;" style="font-size: 12px;">[수정]</a> | 
+                                <a href="/comment/{{ comment.id }}/delete?post_id={{ post.id }}" style="color: red; font-size: 12px;">[삭제]</a>
+                            </span>
+                            
+                            <div id="edit-form-{{ comment.id }}" style="display: none; margin-top: 10px;">
+                                <form action="/comment/{{ comment.id }}/edit" method="POST">
+                                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                                    <input type="text" name="content" value="{{ comment.content }}" style="width: 80%;" required>
+                                    <button type="submit">수정 완료</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </table>
+
+    <br>
+    {% if session.get('username') %}
+        <form action="/post/{{ post.id }}/comment" method="POST">
+            <textarea name="comment_content" rows="3" cols="60" placeholder="댓글을 입력하세요..." required></textarea><br>
+            <button type="submit">댓글 등록</button>
+        </form>
+    {% else %}
+        <p><a href="/login">[로그인]</a> 후 댓글을 작성할 수 있습니다.</p>
+    {% endif %}
+</body>
+</html>
