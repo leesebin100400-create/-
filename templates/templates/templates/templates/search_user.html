@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}유저 검색 결과{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="flex justify-between items-center" style="margin-bottom: 20px;">
+        <h1>'{{ keyword }}' 검색 결과</h1>
+        <a href="/" class="btn btn-secondary btn-sm">← 메인으로</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 80px;">고유번호</th>
+                <th>아이디</th>
+                <th>가입일</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if users %}
+                {% for user in users %}
+                    <tr>
+                        <td class="text-muted">{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td class="text-muted">{{ user.created_at }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="3" class="text-center text-muted" style="padding: 24px;">검색 결과가 없습니다.</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
