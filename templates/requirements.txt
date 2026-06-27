@@ -1,6 +1,0 @@
-flask
-flask-wtf
-pymysql
-bcrypt
-python-dotenv
-werkzeug
